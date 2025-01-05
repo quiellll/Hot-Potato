@@ -5,32 +5,15 @@ public class TouchManager : MonoBehaviour
     public GameObject playerOneIndicator;
     public GameObject playerTwoIndicator;
 
-    private bool isPlayerOneTouching = false;
-    private bool isPlayerTwoTouching = false;
+    public bool isPlayerOneTouching = false;
+    public bool isPlayerTwoTouching = false;
 
     public void Update()
     {
+        if (!GameManager.Instance.IsGameActive) return;
+
         HandleTouchInput();
-
-        if (!GameManager.Instance.IsGameActive && Input.touchCount > 0)
-        {
-            GameManager.Instance.StartGame();
-        }
-
-        if (GameManager.Instance.IsGameActive)
-        {
-            foreach (Touch touch in Input.touches)
-            {
-                if (touch.phase == TouchPhase.Began)
-                {
-                    HandleTouchBegan(touch);
-                }
-                else if (touch.phase == TouchPhase.Ended)
-                {
-                    HandleTouchEnded(touch);
-                }
-            }
-        }
+        UpdateIndicators();
     }
 
     private void HandleTouchInput()
@@ -40,7 +23,7 @@ public class TouchManager : MonoBehaviour
 
         foreach (Touch touch in Input.touches)
         {
-            if (touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
+            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved)
             {
                 if (touch.position.x < Screen.width / 2)
                 {
@@ -52,43 +35,13 @@ public class TouchManager : MonoBehaviour
                 }
             }
         }
+        // debug states
+        Debug.Log($"Player One Touching: {isPlayerOneTouching}, Player Two Touching: {isPlayerTwoTouching}");
     }
 
-    private void HandleTouchBegan(Touch touch)
+    private void UpdateIndicators()
     {
-        GameManager gm = GameManager.Instance;
-
-        if (!gm.isWaitingForRelease)
-        {
-            bool touchingLeft = touch.position.x < Screen.width / 2;
-
-            if (!touchingLeft && gm.bottomPlayer == null)
-            {
-                // Second player touches right side
-                gm.bottomPlayer = gm.SelectNextPlayer();
-                gm.isWaitingForRelease = true;
-                Debug.Log($"Right player ({gm.bottomPlayer.Name}) touched. Waiting for left player release.");
-                gm.UpdateUI();
-            }
-        }
-    }
-
-    private void HandleTouchEnded(Touch touch)
-    {
-        GameManager gm = GameManager.Instance;
-
-        bool touchingLeft = touch.position.x < Screen.width / 2;
-
-        if (gm.isWaitingForRelease && touchingLeft && !isPlayerOneTouching)
-        {
-            // Left player released, only update left player
-            Debug.Log($"Left player ({gm.topPlayer.Name}) released.");
-            gm.topPlayer = gm.SelectNextPlayer();
-            gm.isWaitingForRelease = false;
-            gm.UpdateUI();
-
-            // Right player stays in place
-            Debug.Log($"Right player ({gm.bottomPlayer.Name}) maintains position.");
-        }
+        playerOneIndicator.SetActive(isPlayerOneTouching);
+        playerTwoIndicator.SetActive(isPlayerTwoTouching);
     }
 }

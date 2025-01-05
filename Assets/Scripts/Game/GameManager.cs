@@ -1,24 +1,15 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    public bool IsGameActive { get; private set; } = false;
+    public bool IsGameActive { get; private set; } = true;
+    public string CurrentPlayer;
+
+
     public TouchManager touchManager;
     public BombMechanic bombMechanic;
-
-    [Header("UI Elements")]
-    public TMPro.TextMeshProUGUI PlayerOneText;
-    public TMPro.TextMeshProUGUI PlayerTwoText;
-
-    private List<Player> playerList = new List<Player>();
-    private int currentPlayerIndex = 0;
-
-    public Player topPlayer;  // Player on the left side
-    public Player bottomPlayer; // Player on the right side
-    public bool isWaitingForRelease = false;
 
     public void Awake()
     {
@@ -29,6 +20,8 @@ public class GameManager : MonoBehaviour
 
             touchManager = FindFirstObjectByType<TouchManager>();
             bombMechanic = FindFirstObjectByType<BombMechanic>();
+
+            Debug.Log("GameManager initialized. IsGameActive: " + IsGameActive);
         }
         else
         {
@@ -36,82 +29,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        InitializePlayers();
-        StartFirstRound();
-    }
-
-    private void InitializePlayers()
-    {
-        playerList.Add(new Player("Juan"));
-        playerList.Add(new Player("Paco"));
-        playerList.Add(new Player("Carlota"));
-        playerList.Add(new Player("Pilar"));
-        ShufflePlayers();
-
-        // Initialize first player immediately
-        topPlayer = playerList[0];
-        currentPlayerIndex = 1;
-        UpdateUI();
-    }
-
-    private void ShufflePlayers()
-    {
-        for (int i = playerList.Count - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            var temp = playerList[i];
-            playerList[i] = playerList[j];
-            playerList[j] = temp;
-        }
-    }
-
-    public void UpdateUI()
-    {
-        PlayerOneText.text = topPlayer?.Name ?? playerList[0].Name;
-        PlayerTwoText.text = bottomPlayer?.Name ?? "-";
-    }
-
-    private void StartFirstRound()
-    {
-        IsGameActive = false;
-        topPlayer = playerList[0];
-        bottomPlayer = null;
-        isWaitingForRelease = false;
-        currentPlayerIndex = 1;
-        UpdateUI();
-    }
-
     public void StartGame()
     {
+        // Mecánicas de cuando empiece el juego [NO ESTOY USANDO ESTO RN]
         IsGameActive = true;
         bombMechanic.SetBombLive();
+        Debug.Log("Game started!");
     }
 
     public void EndGame()
     {
         IsGameActive = false;
-        topPlayer = null;
-        bottomPlayer = null;
-        isWaitingForRelease = false;
-        ShufflePlayers();
-        StartFirstRound();
+        // la bomba se desactiva en el bombmechanic
+        Debug.Log("Game ended!");
     }
 
-    public Player SelectNextPlayer()
+    public void SelectNextPlayer()
     {
-        if (playerList.Count == 0) return null;
-
-        Player next = playerList[currentPlayerIndex];
-        currentPlayerIndex = (currentPlayerIndex + 1) % playerList.Count;
-        Debug.Log("next player:" + next.Name);
-        return next;
+        // aquí se pone la lógica para pillar al proximo jugador
+        // importante que desde el menú paséis una lista de jugadores
+        Debug.Log("Selecting next player...");
+        // TODO: assign to currentPlayer
     }
 
     public void BombExploded()
     {
-        Debug.Log($"BOOM! Game Over!");
+        // aquí todo lo que quieras que pase cuando explote.
+        Debug.Log($"BOOM! Players lose: {CurrentPlayer}");
         EndGame();
     }
 }
