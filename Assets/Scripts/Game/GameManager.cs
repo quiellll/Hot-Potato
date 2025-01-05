@@ -1,13 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    public bool IsGameActive { get; private set; } = true;
-    public string CurrentPlayer;
-
-
+    public bool IsGameActive { get; private set; } = false;
     public TouchManager touchManager;
     public BombMechanic bombMechanic;
 
@@ -31,8 +29,6 @@ public class GameManager : MonoBehaviour
 
             touchManager = FindFirstObjectByType<TouchManager>();
             bombMechanic = FindFirstObjectByType<BombMechanic>();
-
-            Debug.Log("GameManager initialized. IsGameActive: " + IsGameActive);
         }
         else
         {
@@ -100,7 +96,7 @@ public class GameManager : MonoBehaviour
         StartNewRound();
     }
 
-    public void SelectNextPlayer()
+    public Player SelectNextPlayer()
     {
         currentPlayerIndex = (currentPlayerIndex + 1) % playerList.Count;
         return playerList[currentPlayerIndex];
@@ -108,8 +104,7 @@ public class GameManager : MonoBehaviour
 
     public void BombExploded()
     {
-        // aqu� todo lo que quieras que pase cuando explote.
-        Debug.Log($"BOOM! Players lose: {CurrentPlayer}");
+        Debug.Log($"BOOM! Game Over!");
         EndGame();
     }
 }

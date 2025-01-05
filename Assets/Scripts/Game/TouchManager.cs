@@ -5,13 +5,11 @@ public class TouchManager : MonoBehaviour
     public GameObject playerOneIndicator;
     public GameObject playerTwoIndicator;
 
-    public bool isPlayerOneTouching = false;
-    public bool isPlayerTwoTouching = false;
+    private bool isPlayerOneTouching = false;
+    private bool isPlayerTwoTouching = false;
 
     public void Update()
     {
-        if (!GameManager.Instance.IsGameActive) return;
-
         HandleTouchInput();
 
         // Start game when first player touches the screen
@@ -47,7 +45,7 @@ public class TouchManager : MonoBehaviour
 
         foreach (Touch touch in Input.touches)
         {
-            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved)
+            if (touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
             {
                 if (touch.position.x < Screen.width / 2)
                 {
@@ -65,7 +63,7 @@ public class TouchManager : MonoBehaviour
         if (playerTwoIndicator) playerTwoIndicator.SetActive(isPlayerTwoTouching);
     }
 
-    private void UpdateIndicators()
+    private void HandleTouchBegan(Touch touch)
     {
         GameManager gm = GameManager.Instance;
         bool touchingLeft = touch.position.x < Screen.width / 2;
