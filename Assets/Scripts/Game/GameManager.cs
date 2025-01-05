@@ -16,8 +16,8 @@ public class GameManager : MonoBehaviour
     private List<Player> playerList = new List<Player>();
     private int currentPlayerIndex = 0;
 
-    public Player topPlayer;  // Player on the left side
-    public Player bottomPlayer; // Player on the right side
+    public Player topPlayer;    // Player on the top side
+    public Player bottomPlayer; // Player on the bottom side
     public bool isWaitingForRelease = false;
 
     public void Awake()
@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         InitializePlayers();
-        StartFirstRound();
+        StartNewRound();
     }
 
     private void InitializePlayers()
@@ -49,11 +49,6 @@ public class GameManager : MonoBehaviour
         playerList.Add(new Player("Carlota"));
         playerList.Add(new Player("Pilar"));
         ShufflePlayers();
-
-        // Initialize first player immediately
-        topPlayer = playerList[0];
-        currentPlayerIndex = 1;
-        UpdateUI();
     }
 
     private void ShufflePlayers()
@@ -69,44 +64,42 @@ public class GameManager : MonoBehaviour
 
     public void UpdateUI()
     {
-        PlayerOneText.text = topPlayer?.Name ?? playerList[0].Name;
-        PlayerTwoText.text = bottomPlayer?.Name ?? "-";
+        PlayerOneText.text = topPlayer?.Name ?? "Waiting...";
+        PlayerTwoText.text = bottomPlayer?.Name ?? "Tap to join!";
     }
 
-    private void StartFirstRound()
+    public void StartNewRound()
     {
         IsGameActive = false;
-        topPlayer = playerList[0];
+        currentPlayerIndex = 0;
+        topPlayer = playerList[currentPlayerIndex];
         bottomPlayer = null;
         isWaitingForRelease = false;
-        currentPlayerIndex = 1;
         UpdateUI();
+        Debug.Log($"New round started with {topPlayer.Name}");
     }
 
     public void StartGame()
     {
-        IsGameActive = true;
-        bombMechanic.SetBombLive();
+        if (!IsGameActive && topPlayer != null)
+        {
+            IsGameActive = true;
+            bombMechanic.SetBombLive();
+            Debug.Log("Game started!");
+        }
     }
 
     public void EndGame()
     {
         IsGameActive = false;
-        topPlayer = null;
-        bottomPlayer = null;
-        isWaitingForRelease = false;
         ShufflePlayers();
-        StartFirstRound();
+        StartNewRound();
     }
 
     public Player SelectNextPlayer()
     {
-        if (playerList.Count == 0) return null;
-
-        Player next = playerList[currentPlayerIndex];
         currentPlayerIndex = (currentPlayerIndex + 1) % playerList.Count;
-        Debug.Log("next player:" + next.Name);
-        return next;
+        return playerList[currentPlayerIndex];
     }
 
     public void BombExploded()

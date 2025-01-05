@@ -12,9 +12,14 @@ public class TouchManager : MonoBehaviour
     {
         HandleTouchInput();
 
-        if (!GameManager.Instance.IsGameActive && Input.touchCount > 0)
+        // Start game when first player touches the screen
+        if (!GameManager.Instance.IsGameActive && Input.touchCount == 1)
         {
-            GameManager.Instance.StartGame();
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began && touch.position.x < Screen.width / 2)
+            {
+                GameManager.Instance.StartGame();
+            }
         }
 
         if (GameManager.Instance.IsGameActive)
@@ -52,19 +57,22 @@ public class TouchManager : MonoBehaviour
                 }
             }
         }
+
+        // Update visual indicators if you have them
+        if (playerOneIndicator) playerOneIndicator.SetActive(isPlayerOneTouching);
+        if (playerTwoIndicator) playerTwoIndicator.SetActive(isPlayerTwoTouching);
     }
 
     private void HandleTouchBegan(Touch touch)
     {
         GameManager gm = GameManager.Instance;
+        bool touchingLeft = touch.position.x < Screen.width / 2;
 
         if (!gm.isWaitingForRelease)
         {
-            bool touchingLeft = touch.position.x < Screen.width / 2;
-
+            // Second player touches right side
             if (!touchingLeft && gm.bottomPlayer == null)
             {
-                // Second player touches right side
                 gm.bottomPlayer = gm.SelectNextPlayer();
                 gm.isWaitingForRelease = true;
                 Debug.Log($"Right player ({gm.bottomPlayer.Name}) touched. Waiting for left player release.");
@@ -76,19 +84,30 @@ public class TouchManager : MonoBehaviour
     private void HandleTouchEnded(Touch touch)
     {
         GameManager gm = GameManager.Instance;
-
         bool touchingLeft = touch.position.x < Screen.width / 2;
 
-        if (gm.isWaitingForRelease && touchingLeft && !isPlayerOneTouching)
+        if (gm.isWaitingForRelease && touchingLeft)
         {
-            // Left player released, only update left player
-            Debug.Log($"Left player ({gm.topPlayer.Name}) released.");
-            gm.topPlayer = gm.SelectNextPlayer();
-            gm.isWaitingForRelease = false;
-            gm.UpdateUI();
+            // Check if there are no other touches on the left side
+            bool noOtherLeftTouches = true;
+            foreach (Touch t in Input.touches)
+            {
+                if (t.fingerId != touch.fingerId && t.position.x < Screen.width / 2)
+                {
+                    noOtherLeftTouches = false;
+                    break;
+                }
+            }
 
-            // Right player stays in place
-            Debug.Log($"Right player ({gm.bottomPlayer.Name}) maintains position.");
+            if (noOtherLeftTouches)
+            {
+                // Left player released, update for next player
+                Debug.Log($"Left player ({gm.topPlayer.Name}) released.");
+                gm.topPlayer = gm.bottomPlayer;
+                gm.bottomPlayer = null;
+                gm.isWaitingForRelease = false;
+                gm.UpdateUI();
+            }
         }
     }
 }
