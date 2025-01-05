@@ -8,6 +8,30 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/gamescene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/Players.unity
+    guid: 91707c4104be0344496b399ebf903ff9
+  - enabled: 1
+    path: Assets/Scenes/Game.unity
+    guid: 6e273b383b3642249a05afbfa10df948
+  - enabled: 1
+    path: Assets/Scenes/Loser.unity
+    guid: 6cfade0527a8f6e459801a847db13c1c
+  - enabled: 1
+    path: Assets/Scenes/Losers.unity
+    guid: 5adae3edf6810f5408d8b8f94ed4bd2a
+  - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: fc48fa56e1038644eb0faf22fe4c9e0a
+  - enabled: 1
+    path: Assets/Scenes/Profile.unity
+    guid: c0fa7bc9a314dec4dae21040dcc8bd3b
+  - enabled: 1
+    path: Assets/Scenes/Settings.unity
+    guid: a75d2edab03aa07419b356540b0343d2
+  - enabled: 1
+    path: Assets/Scenes/Winner.unity
+    guid: db7b358581ae73840aef4c1c28ac5930
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: c86d148283a01c74f8bad2005245bb00, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: a31ded982ce934442ac475ff84709569, type: 2}
