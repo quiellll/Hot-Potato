@@ -44,10 +44,10 @@ public class GameManager : MonoBehaviour
 
     private void InitializePlayers()
     {
-        playerList.Add(new Player("Juan"));
-        playerList.Add(new Player("Paco"));
-        playerList.Add(new Player("Carlota"));
-        playerList.Add(new Player("Pilar"));
+        playerList.Add(new Player("Juan",null,null));
+        playerList.Add(new Player("Paco", null, null));
+        playerList.Add(new Player("Carlota", null, null));
+        playerList.Add(new Player("Pilar", null, null));
         ShufflePlayers();
     }
 
