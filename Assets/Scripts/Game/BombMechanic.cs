@@ -19,7 +19,7 @@ public class BombMechanic : MonoBehaviour
 
     public void Update()
     {
-        if (GameManager.Instance.IsGameActive && IsBombLive)
+        if (GameManager.Instance.GetCurrentState() == GameState.Playing)
         {
             DetectShake();
         }
@@ -50,10 +50,10 @@ public class BombMechanic : MonoBehaviour
         lastAcceleration = currentAcceleration;
     }
 
-    private void Explode()
+    public void Explode()
     {
         Debug.Log("BOOM! The bomb exploded!");
-        IsBombLive = false; // evita que explote más de una vez
-        GameManager.Instance.BombExploded(); // notificar al GameManager
+        IsBombLive = false;
+        GameManager.Instance.HandleExplosion();
     }
 }

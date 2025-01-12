@@ -1,34 +1,48 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    // Singleton instance
     public static GameManager Instance { get; private set; }
 
-    public bool IsGameActive { get; private set; } = false;
-    public TouchManager touchManager;
+    [Header("UI References")]
+    public TextMeshProUGUI currentPlayerText;
+    public TextMeshProUGUI timerText;
+    public Button gameButton;
+
+    [Header("Game Settings")]
+    public float roundDuration = 15f;
+    public int minPlayers = 3;
+    public int maxPlayers = 5;
+
+    [Header("Game Components")]
     public BombMechanic bombMechanic;
+    public TouchManager touchManager;
 
-    [Header("UI Elements")]
-    public TMPro.TextMeshProUGUI PlayerOneText;
-    public TMPro.TextMeshProUGUI PlayerTwoText;
+    // Game state tracking
+    private GameState currentState;
+    private float remainingTime;
+    private PlayerPosition currentPlayerPosition;
 
-    private List<Player> playerList = new List<Player>();
+    // Player management
+    private List<Player> players = new List<Player>();
     private int currentPlayerIndex = 0;
 
-    public Player topPlayer;    // Player on the top side
-    public Player bottomPlayer; // Player on the bottom side
-    public bool isWaitingForRelease = false;
+    private void Awake()
+    {
+        SetupSingleton();
+        InitializeGame();
+    }
 
-    public void Awake()
+    private void SetupSingleton()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-
-            touchManager = FindFirstObjectByType<TouchManager>();
-            bombMechanic = FindFirstObjectByType<BombMechanic>();
         }
         else
         {
@@ -36,75 +50,150 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void InitializeGame()
     {
-        InitializePlayers();
+        // Find required components
+        bombMechanic = FindFirstObjectByType<BombMechanic>();
+        touchManager = FindFirstObjectByType<TouchManager>();
+
+        // Initialize debug players
+        CreateDebugPlayers();
         StartNewRound();
     }
 
-    private void InitializePlayers()
+    private void SetupGameButton()
     {
-        playerList.Add(new Player("Juan",null,null));
-        playerList.Add(new Player("Paco", null, null));
-        playerList.Add(new Player("Carlota", null, null));
-        playerList.Add(new Player("Pilar", null, null));
+        gameButton.onClick.RemoveAllListeners();
+        gameButton.onClick.AddListener(StartPlaying);
+        gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Comenzar";
+    }
+
+    private void CreateDebugPlayers()
+    {
+        players.Clear();
+        for (int i = 1; i <= 4; i++)
+        {
+            players.Add(new Player($"Player {i}", null, null));
+        }
         ShufflePlayers();
+    }
+
+    public void AddPlayer(Player player)
+    {
+        players.Add(player);
     }
 
     private void ShufflePlayers()
     {
-        for (int i = playerList.Count - 1; i > 0; i--)
+        for (int i = players.Count - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
-            var temp = playerList[i];
-            playerList[i] = playerList[j];
-            playerList[j] = temp;
+            var temp = players[i];
+            players[i] = players[j];
+            players[j] = temp;
         }
     }
 
-    public void UpdateUI()
+    private void Update()
     {
-        PlayerOneText.text = topPlayer?.Name ?? "Waiting...";
-        PlayerTwoText.text = bottomPlayer?.Name ?? "Tap to join!";
+        if (currentState == GameState.Playing)
+        {
+            UpdateTimer();
+        }
     }
 
+    private void UpdateTimer()
+    {
+        remainingTime -= Time.deltaTime;
+        if (timerText != null)
+        {
+            timerText.text = $"{Mathf.Ceil(remainingTime):0}";
+        }
+
+        if (remainingTime <= 0)
+        {
+            // AQUI ES DONDE SE ACABA EL TIEMPO. PARAR EL JUEGO Y PASAR A SIGUIENTE RONDA. HACER COSAS DE UI AQUI
+            Debug.Log($"BOOM! Eliminado jugador {players[currentPlayerIndex]}");
+            EliminateCurrentPlayer();
+            //StartNewRound();
+        }
+    }
+
+    // Player Management
+    private Player GetCurrentPlayer() => players[currentPlayerIndex];
+    private Player GetNextPlayer() => players[(currentPlayerIndex + 1) % players.Count];
+
+    private void AdvanceToNextPlayer()
+    {
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
+        UpdateUI();
+    }
+
+    // Game Flow Methods
     public void StartNewRound()
     {
-        IsGameActive = false;
-        currentPlayerIndex = 0;
-        topPlayer = playerList[currentPlayerIndex];
-        bottomPlayer = null;
-        isWaitingForRelease = false;
-        UpdateUI();
-        Debug.Log($"New round started with {topPlayer.Name}");
+        SetupGameButton();
+        SetupFirstPlayer();
+        currentState = GameState.WaitingToStart;
+        remainingTime = roundDuration;
     }
 
-    public void StartGame()
+    public void SetupFirstPlayer()
     {
-        if (!IsGameActive && topPlayer != null)
+        currentPlayerText.text = players[currentPlayerIndex].Name;
+    }
+
+    private void StartPlaying()
+    {
+        if (currentState == GameState.WaitingToStart)
         {
-            IsGameActive = true;
+            // quizas aqui poner que el texto del boton cambie y tambien le cambio la funcion.
+            UpdateUI();
+            currentState = GameState.Playing;
             bombMechanic.SetBombLive();
-            Debug.Log("Game started!");
         }
     }
 
-    public void EndGame()
+    public GameState GetCurrentState() => currentState;
+
+    public void HandleExplosion()
     {
-        IsGameActive = false;
-        ShufflePlayers();
+        // aqui hacer las cosas de explosion, como poner un ruidito o indicar q ha perdido.
+        EliminateCurrentPlayer();
+        currentState = GameState.GameOver;
         StartNewRound();
     }
 
-    public Player SelectNextPlayer()
+    private void EliminateCurrentPlayer()
     {
-        currentPlayerIndex = (currentPlayerIndex + 1) % playerList.Count;
-        return playerList[currentPlayerIndex];
+        EliminatePlayer(GetCurrentPlayer());
     }
 
-    public void BombExploded()
+    private void EliminatePlayer(Player player)
     {
-        Debug.Log($"BOOM! Game Over!");
-        EndGame();
+        player.Eliminate();
+        players.Remove(player);
+
+        if (players.Count < 2)
+        {
+            Debug.Log($"Game Over! Winner: {players[0].Name}");
+            // aqui se puede pasar a la pantalla de victoria con el ganador
+        }
+    }
+
+    private void UpdateUI()
+    {
+        if (currentState == GameState.WaitingToStart)
+        {
+            gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Siguiente";
+            gameButton.onClick.RemoveAllListeners();
+            gameButton.onClick.AddListener(AdvanceToNextPlayer);
+
+            // guarrada pero es que sin esto en la primera ronda siempre se saltaba al jugador en 2 turno lol
+            currentPlayerIndex--;
+            return;
+        }
+
+        currentPlayerText.text = GetNextPlayer().Name;
     }
 }
