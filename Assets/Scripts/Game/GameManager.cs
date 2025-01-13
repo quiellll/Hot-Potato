@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
+using System.Text;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI currentPlayerText;
     public TextMeshProUGUI timerText;
     public Button gameButton;
+    public TextMeshProUGUI eliminationText;
 
     [Header("Game Settings")]
     public float roundDuration = 15f;
@@ -34,6 +36,7 @@ public class GameManager : MonoBehaviour
     // Player management
     private List<Player> players = new List<Player>();
     private int currentPlayerIndex = 0;
+    private string eliminatedPlayer = "";
 
     private void Awake()
     {
@@ -63,6 +66,8 @@ public class GameManager : MonoBehaviour
         // Load players from configuration instead of debug players
         LoadPlayersFromConfig();
         StartNewRound();
+
+        eliminationText.gameObject.SetActive(false);
     }
 
     private void SetupGameButton()
@@ -142,10 +147,15 @@ public class GameManager : MonoBehaviour
         if (remainingTime <= 0)
         {
             // AQUI ES DONDE SE ACABA EL TIEMPO. PARAR EL JUEGO Y PASAR A SIGUIENTE RONDA. HACER COSAS DE UI AQUI
-            Debug.Log($"BOOM! Eliminado jugador {players[currentPlayerIndex]}");
-            EliminateCurrentPlayer();
-            //StartNewRound();
+            StopTimer();
+            HandleExplosion();
         }
+    }
+
+    private void StopTimer()
+    {
+        if (timerText != null)
+            timerText.text = "--:--";
     }
 
     // Player Management
@@ -161,6 +171,8 @@ public class GameManager : MonoBehaviour
     // Game Flow Methods
     public void StartNewRound()
     {
+        if (players.Count == 1) EndGame();
+
         SetupGameButton();
         SetupFirstPlayer();
         currentState = GameState.WaitingToStart;
@@ -169,7 +181,7 @@ public class GameManager : MonoBehaviour
 
     public void SetupFirstPlayer()
     {
-        currentPlayerText.text = players[currentPlayerIndex].Name;
+        currentPlayerText.text = players[0].Name;
     }
 
     private void StartPlaying()
@@ -196,12 +208,15 @@ public class GameManager : MonoBehaviour
     private void EliminateCurrentPlayer()
     {
         EliminatePlayer(GetCurrentPlayer());
+        ShowEliminationText();
     }
 
     private void EliminatePlayer(Player player)
     {
         player.Eliminate();
         players.Remove(player);
+
+        eliminatedPlayer = player.Name;
 
         if (players.Count < 2)
         {
@@ -212,8 +227,13 @@ public class GameManager : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (currentState == GameState.WaitingToStart)
+        if (currentState == GameState.GameOver)
         {
+            eliminationText.gameObject.SetActive(false);
+        }
+            if (currentState == GameState.WaitingToStart)
+        {
+
             gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Siguiente";
             gameButton.onClick.RemoveAllListeners();
             gameButton.onClick.AddListener(AdvanceToNextPlayer);
@@ -225,5 +245,16 @@ public class GameManager : MonoBehaviour
 
         currentPlayerText.text = GetNextPlayer().Name;
         background.sprite = GetNextPlayer().Background;
+    }
+
+    private void ShowEliminationText()
+    {
+        eliminationText.gameObject.SetActive(true);
+        eliminationText.text = ($"¡{eliminatedPlayer} fue eliminado!");
+    }
+
+    private void EndGame()
+    {
+        Debug.Log("pantalla fin de juego");
     }
 }
