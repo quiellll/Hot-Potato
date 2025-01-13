@@ -16,7 +16,7 @@ public class ProfileScreen : MonoBehaviour
 {
     [SerializeField] private Image background;
 
-    [SerializeField] private RawImage placeholderImage; // the UI element
+    [SerializeField] private RawImage placeholderImage;
     [SerializeField] private WebCamTexture cameraTexture;
 
     [SerializeField] private List<Button> colorButtons = new();
@@ -64,8 +64,13 @@ public class ProfileScreen : MonoBehaviour
             cameraTexture = new WebCamTexture();
         }
 
+        if (cameraTexture.isPlaying)
+        {
+            cameraTexture.Stop();
+        }
+
         placeholderImage.texture = cameraTexture;
-        placeholderImage.gameObject.SetActive(true); // ensure visibility
+        placeholderImage.gameObject.SetActive(true);
         cameraTexture.Play();
     }
 
@@ -73,13 +78,17 @@ public class ProfileScreen : MonoBehaviour
     {
         if (cameraTexture != null && cameraTexture.isPlaying)
         {
-            // Create a new texture and copy the webcam image
-            Texture2D photo = new Texture2D(cameraTexture.width, cameraTexture.height);
+            // Create a new texture with the webcam dimensions
+            Texture2D photo = new Texture2D(cameraTexture.width, cameraTexture.height, TextureFormat.RGB24, false);
+
+            // Read the current camera frame
             photo.SetPixels(cameraTexture.GetPixels());
             photo.Apply();
 
-            // Set it to the placeholder
+            // Set the captured photo as the texture of the placeholder
             placeholderImage.texture = photo;
+
+            // Stop the camera - THIS WAS MISSING
             cameraTexture.Stop();
         }
     }
@@ -100,11 +109,12 @@ public class ProfileScreen : MonoBehaviour
     {
         if (string.IsNullOrEmpty(nameInput.text)) return;
 
-        // Just get the texture directly - it's already a Texture2D from CapturePhoto
+        Texture2D photoTexture = placeholderImage.texture as Texture2D;
+
         var newPlayer = new PlayerData(
             nameInput.text,
             background.sprite,
-            placeholderImage.texture as Texture2D
+            photoTexture  
         );
 
         config.players.Add(newPlayer);
@@ -123,6 +133,33 @@ public class ProfileScreen : MonoBehaviour
     {
         nameInput.text = "";
         placeholderImage.texture = null;
-        background.sprite = null; // Reset background to default
+        background.sprite = null; 
     }
+
+    private void OnDestroy()
+    {
+        if (cameraTexture != null)
+        {
+            if (cameraTexture.isPlaying)
+                cameraTexture.Stop();
+            Destroy(cameraTexture);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (cameraTexture != null)
+        {
+            cameraTexture.Stop();
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (cameraTexture != null)
+        {
+            cameraTexture.Stop();
+        }
+    }
+
 }

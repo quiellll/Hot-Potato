@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayersScreen : MonoBehaviour
 {
-    [SerializeField] private List<RawImage> playerPlaceholders;
+    [SerializeField] private List<Sprite> playerPlaceholders;
     [SerializeField] private List<Image> playerBackgrounds;
     [SerializeField] private GameConfiguration config;
 
@@ -18,9 +19,8 @@ public class PlayersScreen : MonoBehaviour
             if (i < config.players.Count)
             {
                 var player = config.players[i];
-                // Update face - now using the PlayerFace property which handles conversion
-                placeholder.texture = player.PlayerFace;
-                placeholder.gameObject.SetActive(true);
+                placeholder = Sprite.Create(player.PlayerFace, new Rect(0.0f, 0.0f, player.PlayerFace.width, player.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
+                placeholder.GetComponentInParent<GameObject>().SetActive(true);
 
                 // Update background if available
                 if (background != null && player.Background != null)
@@ -32,8 +32,8 @@ public class PlayersScreen : MonoBehaviour
             else
             {
                 // Reset placeholder
-                placeholder.texture = null;
-                placeholder.gameObject.SetActive(true);
+                placeholder= null;
+                placeholder.GetComponentInParent<GameObject>().SetActive(false);
 
                 if (background != null)
                 {

@@ -5,7 +5,7 @@ public class PlayerData
 {
     public string Name;
     public Sprite Background;
-    public Texture2D PlayerFace;  // Just store it directly as Texture2D
+    public Texture2D PlayerFace; // Cache the decoded texture
 
     public PlayerData(string name, Sprite background, Texture2D face)
     {
