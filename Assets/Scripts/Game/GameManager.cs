@@ -74,7 +74,7 @@ public class GameManager : MonoBehaviour
     {
         gameButton.onClick.RemoveAllListeners();
         gameButton.onClick.AddListener(StartPlaying);
-        gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Comenzar";
+        gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start";
     }
 
     //private void CreateDebugPlayers()
@@ -192,6 +192,8 @@ public class GameManager : MonoBehaviour
             UpdateUI();
             currentState = GameState.Playing;
             bombMechanic.SetBombLive();
+            AdvanceToNextPlayer();
+            eliminationText.gameObject.SetActive(false);
         }
     }
 
@@ -220,7 +222,6 @@ public class GameManager : MonoBehaviour
 
         if (players.Count < 2)
         {
-            Debug.Log($"Game Over! Winner: {players[0].Name}");
             // aqui se puede pasar a la pantalla de victoria con el ganador
         }
     }
@@ -231,10 +232,11 @@ public class GameManager : MonoBehaviour
         {
             eliminationText.gameObject.SetActive(false);
         }
-            if (currentState == GameState.WaitingToStart)
+
+        if (currentState == GameState.WaitingToStart)
         {
 
-            gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Siguiente";
+            gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Next";
             gameButton.onClick.RemoveAllListeners();
             gameButton.onClick.AddListener(AdvanceToNextPlayer);
 
@@ -250,11 +252,19 @@ public class GameManager : MonoBehaviour
     private void ShowEliminationText()
     {
         eliminationText.gameObject.SetActive(true);
-        eliminationText.text = ($"¡{eliminatedPlayer} fue eliminado!");
+        eliminationText.text = ($"{eliminatedPlayer} eliminated!");
+    }
+
+    public Player GetWinner()
+    {
+        return players.Count > 0 ? players[0] : null;
     }
 
     private void EndGame()
     {
-        Debug.Log("pantalla fin de juego");
+        if (players.Count > 0)
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Winner");
+        }
     }
 }

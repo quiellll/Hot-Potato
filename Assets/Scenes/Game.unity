@@ -1290,7 +1290,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "P\xE1sasela a"
+  m_text: Pass it to
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9837b4a9a740885479114f3baeba96b9, type: 2}
   m_sharedMaterial: {fileID: 3389202154456638727, guid: 9837b4a9a740885479114f3baeba96b9, type: 2}
@@ -1625,7 +1625,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5370689edbb53124e8e774285f930850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shakeThreshold: 10.5
+  shakeThreshold: 0.5
   explosionCooldown: 1
 --- !u!4 &1803061478
 Transform:
