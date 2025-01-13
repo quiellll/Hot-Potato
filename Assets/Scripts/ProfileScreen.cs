@@ -73,15 +73,13 @@ public class ProfileScreen : MonoBehaviour
     {
         if (cameraTexture != null && cameraTexture.isPlaying)
         {
-            // create a new texture for the captured photo
+            // Create a new texture and copy the webcam image
             Texture2D photo = new Texture2D(cameraTexture.width, cameraTexture.height);
             photo.SetPixels(cameraTexture.GetPixels());
             photo.Apply();
 
-            // apply the captured photo to the placeholder's raw image
+            // Set it to the placeholder
             placeholderImage.texture = photo;
-
-            // stop the camera
             cameraTexture.Stop();
         }
     }
@@ -100,13 +98,31 @@ public class ProfileScreen : MonoBehaviour
 
     public void SaveProfile()
     {
-        string playerName = nameInput.text;
-        if (string.IsNullOrEmpty(playerName)) return;
+        if (string.IsNullOrEmpty(nameInput.text)) return;
 
-        Sprite backgroundSprite = playerBackground.sprite;
-        Texture faceTexture = placeholderImage.texture; // directly get texture from RawImage
+        // Just get the texture directly - it's already a Texture2D from CapturePhoto
+        var newPlayer = new PlayerData(
+            nameInput.text,
+            background.sprite,
+            placeholderImage.texture as Texture2D
+        );
 
-        Player newPlayer = gameObject.AddComponent<Player>();
         config.players.Add(newPlayer);
+
+        // Update display
+        var playersScreen = FindObjectOfType<PlayersScreen>();
+        if (playersScreen != null)
+        {
+            playersScreen.UpdatePlaceholders();
+        }
+
+        ClearProfileForm();
+    }
+
+    private void ClearProfileForm()
+    {
+        nameInput.text = "";
+        placeholderImage.texture = null;
+        background.sprite = null; // Reset background to default
     }
 }

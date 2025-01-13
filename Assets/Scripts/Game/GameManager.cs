@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("UI References")]
+    public Image background;
     public TextMeshProUGUI currentPlayerText;
     public TextMeshProUGUI timerText;
     public Button gameButton;
@@ -21,6 +22,9 @@ public class GameManager : MonoBehaviour
     [Header("Game Components")]
     public BombMechanic bombMechanic;
     public TouchManager touchManager;
+
+    [Header("Configuration")]
+    [SerializeField] private GameConfiguration config;
 
     // Game state tracking
     private GameState currentState;
@@ -56,8 +60,8 @@ public class GameManager : MonoBehaviour
         bombMechanic = FindFirstObjectByType<BombMechanic>();
         touchManager = FindFirstObjectByType<TouchManager>();
 
-        // Initialize debug players
-        CreateDebugPlayers();
+        // Load players from configuration instead of debug players
+        LoadPlayersFromConfig();
         StartNewRound();
     }
 
@@ -68,13 +72,38 @@ public class GameManager : MonoBehaviour
         gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Comenzar";
     }
 
-    private void CreateDebugPlayers()
+    //private void CreateDebugPlayers()
+    //{
+    //    players.Clear();
+    //    for (int i = 1; i <= 4; i++)
+    //    {
+    //        players.Add(new Player($"Player {i}", null, null));
+    //    }
+    //    ShufflePlayers();
+    //}
+
+    private void LoadPlayersFromConfig()
     {
         players.Clear();
-        for (int i = 1; i <= 4; i++)
+
+        // Check if we have enough players
+        if (config.players.Count < minPlayers)
         {
-            players.Add(new Player($"Player {i}", null, null));
+            Debug.LogWarning($"Not enough players in configuration! Minimum required: {minPlayers}");
+            return;
         }
+
+        // Load only up to maxPlayers
+        int playerCount = Mathf.Min(config.players.Count, maxPlayers);
+
+        for (int i = 0; i < playerCount; i++)
+        {
+            var playerData = config.players[i];
+            var player = gameObject.AddComponent<Player>();
+            player.Initialize(playerData.Name, playerData.Background, playerData.PlayerFace);
+            players.Add(player);
+        }
+
         ShufflePlayers();
     }
 
@@ -120,7 +149,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Player Management
-    private Player GetCurrentPlayer() => players[currentPlayerIndex];
+    private Player GetCurrentPlayer() => players[(currentPlayerIndex) % players.Count];
     private Player GetNextPlayer() => players[(currentPlayerIndex + 1) % players.Count];
 
     private void AdvanceToNextPlayer()
@@ -195,5 +224,6 @@ public class GameManager : MonoBehaviour
         }
 
         currentPlayerText.text = GetNextPlayer().Name;
+        background.sprite = GetNextPlayer().Background;
     }
 }

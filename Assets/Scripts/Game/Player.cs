@@ -6,11 +6,19 @@ public class Player : MonoBehaviour
     // Basic player properties
     public string Name { get; private set; }
     public Sprite Background { get; private set; }
-    public Texture PlayerFace { get; private set; }
+    public Texture2D PlayerFace { get; private set; }
     public bool IsEliminated { get; private set; }
     public PlayerPosition CurrentPosition { get; private set; }
 
-    public Player(string name, Sprite background, Texture face)
+    public void Initialize(string name, Sprite background, Texture2D face)
+    {
+        Name = name;
+        Background = background;
+        PlayerFace = face;
+        IsEliminated = false;
+    }
+
+    public Player(string name, Sprite background, Texture2D face)
     {
         Name = name;
         Background = background;

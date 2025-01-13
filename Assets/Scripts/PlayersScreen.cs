@@ -2,29 +2,44 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayersScreen : MonoBehaviour 
+public class PlayersScreen : MonoBehaviour
 {
-    [SerializeField] private List<RawImage> playerPlaceholders; // list of placeholder images
+    [SerializeField] private List<RawImage> playerPlaceholders;
+    [SerializeField] private List<Image> playerBackgrounds;
     [SerializeField] private GameConfiguration config;
-
-    private void OnEnable()
-    {
-        UpdatePlaceholders();
-    }
 
     public void UpdatePlaceholders()
     {
         for (int i = 0; i < playerPlaceholders.Count; i++)
         {
+            var placeholder = playerPlaceholders[i];
+            var background = playerBackgrounds?[i];
+
             if (i < config.players.Count)
             {
-                // assign the player's face texture to the placeholder
-                playerPlaceholders[i].texture = config.players[i].PlayerFace;
+                var player = config.players[i];
+                // Update face - now using the PlayerFace property which handles conversion
+                placeholder.texture = player.PlayerFace;
+                placeholder.gameObject.SetActive(true);
+
+                // Update background if available
+                if (background != null && player.Background != null)
+                {
+                    background.sprite = player.Background;
+                    background.gameObject.SetActive(true);
+                }
             }
             else
             {
-                // reset placeholder if no player exists
-                playerPlaceholders[i].texture = null;
+                // Reset placeholder
+                placeholder.texture = null;
+                placeholder.gameObject.SetActive(true);
+
+                if (background != null)
+                {
+                    background.sprite = null;
+                    background.gameObject.SetActive(false);
+                }
             }
         }
     }
