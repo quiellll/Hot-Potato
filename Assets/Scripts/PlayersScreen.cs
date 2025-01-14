@@ -11,10 +11,12 @@ public class PlayersScreen : MonoBehaviour
     [SerializeField] private Button StartButton; // Reference to the start button
 
     [Header("Configuration")]
-    [SerializeField] private int minimumPlayers = 3; // Minimum required players
+    [SerializeField] private int minimumPlayers = 2; // Minimum required players
+    [SerializeField] private int maximumPlayers = 5;
 
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private GameObject addPlayerButton;
     [SerializeField] private GameObject playerNameCardLayoutParent;
     [SerializeField] private GameObject playerNameCard;
 
@@ -27,6 +29,7 @@ public class PlayersScreen : MonoBehaviour
     void Start()
     {
         UpdateStartButtonVisibility();
+        UpdateAddPlayerVisibility();
         UpdateNamesVisibility();
     }
 
@@ -54,6 +57,11 @@ public class PlayersScreen : MonoBehaviour
             //    }
             //}
         }
+    }
+
+    public void UpdateAddPlayerVisibility()
+    {
+        if (config.players.Count >= maximumPlayers) addPlayerButton.SetActive(false);
     }
 
     public void UpdateNamesVisibility()

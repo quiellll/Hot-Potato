@@ -158,7 +158,7 @@ public class GameManager : MonoBehaviour
         if (remainingTime <= 0)
         {
             // AQUI ES DONDE SE ACABA EL TIEMPO. PARAR EL JUEGO Y PASAR A SIGUIENTE RONDA. HACER COSAS DE UI AQUI
-            StopTimer();
+            
             HandleExplosion();
         }
     }
@@ -217,6 +217,8 @@ public class GameManager : MonoBehaviour
     public void HandleExplosion()
     {
         // aqui hacer las cosas de explosion, como poner un ruidito o indicar q ha perdido.
+        StopTimer();
+        bombMechanic.DefuseBomb();
         AudioManager.Instance.PlayExplosionSound();
         EliminateCurrentPlayer();
         currentState = GameState.GameOver;

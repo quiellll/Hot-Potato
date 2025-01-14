@@ -14,6 +14,7 @@ public class BombMechanic : MonoBehaviour
     public void Start()
     {
         lastAcceleration = Input.acceleration;
+        ResetAccelerometer();
         SetBombLive();
     }
 
@@ -28,6 +29,18 @@ public class BombMechanic : MonoBehaviour
     public void SetBombLive()
     {
         IsBombLive = true;
+        ResetAccelerometer();
+    }
+
+    public void DefuseBomb()
+    {
+        IsBombLive = false;
+    }
+
+    private void ResetAccelerometer()
+    {
+        lastAcceleration = Input.acceleration;
+        lastExplosionTime = Time.time;
     }
 
     private void DetectShake()
