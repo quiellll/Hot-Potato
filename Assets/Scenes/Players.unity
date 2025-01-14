@@ -540,7 +540,7 @@ MonoBehaviour:
   playerImage: []
   config: {fileID: 11400000, guid: ab77af056e99944459e574c1d013bb2d, type: 2}
   StartButton: {fileID: 677017230}
-  minimumPlayers: 3
+  minimumPlayers: 2
   maximumPlayers: 5
   messageText: {fileID: 0}
   addPlayerButton: {fileID: 872035785}

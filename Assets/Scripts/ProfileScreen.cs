@@ -85,7 +85,7 @@ public class ProfileScreen : MonoBehaviour
         RectTransform rectTransform = placeholderImage.GetComponent<RectTransform>();
 
         // cambio la resolucion de la foto a la de la camara pero a la mitad
-        rectTransform.sizeDelta = new Vector2(cameraTexture.width/2, cameraTexture.height/2);
+        rectTransform.sizeDelta = new Vector2(cameraTexture.width, cameraTexture.height);
 
         // si la camara es mas alta que ancha (movil), pues que se vea girada
         if (cameraTexture.width < cameraTexture.height)
@@ -165,7 +165,7 @@ public class ProfileScreen : MonoBehaviour
             photoTexture
         );
 
-        newPlayer.SetImageResolution(new Vector2(cameraTexture.width/2, cameraTexture.height/2));
+        newPlayer.SetImageResolution(new Vector2(cameraTexture.width, cameraTexture.height));
         
         config.players.Add(newPlayer);
 
