@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: PlayerList
   m_EditorClassIdentifier: 
   players:
-  - Name: 55
+  - Name: 1
     Background: {fileID: -4279241780906724887, guid: 2e3a198160901ff4889dc293926ac962, type: 3}
     PlayerFace: {fileID: 0}
-  - Name: 44
-    Background: {fileID: 6047062998020310423, guid: acd9a4e1fa4ddd848ae4ba8cdd485f3c, type: 3}
+  - Name: 2
+    Background: {fileID: 6977937172876042345, guid: 03c5718cd9cf425489a45b2cd0725f2f, type: 3}
     PlayerFace: {fileID: 0}

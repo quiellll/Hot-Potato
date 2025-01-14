@@ -31,6 +31,7 @@ public class ProfileScreen : MonoBehaviour
     [SerializeField] private RawImage playerFace;
 
     private Texture2D capturedTexture;
+    private bool isPortrait = false;
 
 
     private void Awake()
@@ -60,8 +61,23 @@ public class ProfileScreen : MonoBehaviour
     {
         if (cameraTexture == null)
         {
-            // la idea es pillar camara selfie pero si no la detecta que use la default
-            cameraTexture = new WebCamTexture(WebCamTexture.devices.FirstOrDefault(d => d.isFrontFacing).name ?? "");
+            // Try to get the front-facing camera
+            WebCamDevice[] devices = WebCamTexture.devices;
+            WebCamDevice? frontCamera = null;
+
+            // Look for front camera
+            foreach (var device in devices)
+            {
+                if (device.isFrontFacing)
+                {
+                    frontCamera = device;
+                    break;
+                }
+            }
+
+            // If found, use front camera, otherwise use the first available camera
+            string deviceName = frontCamera?.name ?? devices.FirstOrDefault().name;
+            cameraTexture = new WebCamTexture(deviceName, 1280, 720, 30);
             placeholderImage.texture = cameraTexture;
         }
 
@@ -84,14 +100,24 @@ public class ProfileScreen : MonoBehaviour
         // pillar la resolucion de la foto
         RectTransform rectTransform = placeholderImage.GetComponent<RectTransform>();
 
-        // cambio la resolucion de la foto a la de la camara pero a la mitad
-        rectTransform.sizeDelta = new Vector2(cameraTexture.width / 2, cameraTexture.height / 2);
+        isPortrait = cameraTexture.width < cameraTexture.height;
 
-        // si la camara es mas alta que ancha (movil), pues que se vea girada
-        if (cameraTexture.width < cameraTexture.height)
+        // Set the correct size
+        if (isPortrait)
         {
-            rectTransform.rotation = Quaternion.Euler(0, 0, -90);
+            // In portrait mode, swap width and height to maintain aspect ratio
+            rectTransform.sizeDelta = new Vector2(cameraTexture.height / 4, cameraTexture.width / 4);
+            placeholderImage.rectTransform.localRotation = Quaternion.Euler(0, 0, -90);
         }
+        else
+        {
+            rectTransform.sizeDelta = new Vector2(cameraTexture.width / 4, cameraTexture.height / 4);
+            placeholderImage.rectTransform.localRotation = Quaternion.identity;
+        }
+
+        // Apply the correct video rotation based on the camera
+        int videoRotationAngle = cameraTexture.videoRotationAngle;
+        placeholderImage.rectTransform.localRotation *= Quaternion.Euler(0, 0, -videoRotationAngle);
     }
 
     private Texture2D ConvertWebCamTextureToTexture2D(WebCamTexture webcamTexture)
@@ -102,10 +128,35 @@ public class ProfileScreen : MonoBehaviour
             return null;
         }
 
-        Texture2D texture2D = new Texture2D(webcamTexture.width, webcamTexture.height, TextureFormat.RGB24, false);
-        texture2D.SetPixels(webcamTexture.GetPixels());
-        texture2D.Apply();
+        Texture2D texture2D;
+        if (isPortrait)
+        {
+            // In portrait mode, swap width and height
+            texture2D = new Texture2D(webcamTexture.height, webcamTexture.width, TextureFormat.RGB24, false);
 
+            // Get the pixels and rotate them
+            Color[] pixels = webcamTexture.GetPixels();
+            Color[] rotatedPixels = new Color[pixels.Length];
+
+            for (int i = 0; i < webcamTexture.height; i++)
+            {
+                for (int j = 0; j < webcamTexture.width; j++)
+                {
+                    // Rotate 90 degrees counterclockwise
+                    rotatedPixels[i * webcamTexture.width + j] =
+                        pixels[(webcamTexture.width - 1 - j) * webcamTexture.height + i];
+                }
+            }
+
+            texture2D.SetPixels(rotatedPixels);
+        }
+        else
+        {
+            texture2D = new Texture2D(webcamTexture.width, webcamTexture.height, TextureFormat.RGB24, false);
+            texture2D.SetPixels(webcamTexture.GetPixels());
+        }
+
+        texture2D.Apply();
         return texture2D;
     }
 
@@ -114,8 +165,15 @@ public class ProfileScreen : MonoBehaviour
         Texture2D texture2D = capturedTexture;
         if (texture2D == null) return null;
 
-        return Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f), 100f);
+        // Create sprite with the correct orientation
+        return Sprite.Create(
+            texture2D,
+            new Rect(0, 0, texture2D.width, texture2D.height),
+            new Vector2(0.5f, 0.5f),
+            100f);
     }
+
+    
 
     public void CapturePhoto()
     {
@@ -147,17 +205,10 @@ public class ProfileScreen : MonoBehaviour
     {
         if (string.IsNullOrEmpty(nameInput.text)) return;
 
-        // por si se olvida a quien sea pillar la foto
+        // Capture photo if still in preview mode
         if (cameraTexture.isPlaying) CapturePhoto();
 
         Sprite photoTexture = CreateSpriteFromWebCam(cameraTexture);
-
-        Sprite profileSprite = Sprite.Create(
-        capturedTexture,
-        new Rect(0, 0, capturedTexture.width, capturedTexture.height),
-        new Vector2(0.5f, 0.5f),
-        100.0f
-        );
 
         var newPlayer = new PlayerData(
             nameInput.text,
@@ -165,17 +216,18 @@ public class ProfileScreen : MonoBehaviour
             photoTexture
         );
 
-        newPlayer.SetImageResolution(new Vector2(cameraTexture.width / 2, cameraTexture.height / 2));
-        
+        // Set the correct resolution based on orientation
+        Vector2 imageResolution = isPortrait ?
+            new Vector2(cameraTexture.height / 4, cameraTexture.width / 4) :
+            new Vector2(cameraTexture.width / 4, cameraTexture.height / 4);
+
+        newPlayer.SetImageResolution(imageResolution);
+
         config.players.Add(newPlayer);
 
         // Update display
         var playersScreen = FindAnyObjectByType<PlayersScreen>();
-        if (playersScreen != null)
-        {
-            playersScreen.UpdateNamesVisibility();
-
-        }
+        playersScreen?.UpdateNamesVisibility();
 
         ClearProfileForm();
     }
