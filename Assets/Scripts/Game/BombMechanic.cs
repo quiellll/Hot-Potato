@@ -4,30 +4,41 @@ using UnityEngine.InputSystem;
 public class BombMechanic : MonoBehaviour
 {
     public bool IsBombLive { get; private set; }
-
-    // ajustar valores a gusto
     public float shakeThreshold = 2.5f;
-    public float explosionCooldown = 1f; // esto es un poco de debug para que no me explote muchas veces seguidas
+    public float explosionCooldown = 1f;
 
     private Vector3 lastAcceleration;
     private float lastExplosionTime = 0;
 
     public void Start()
     {
-        // activar el sensor
-        if (!LinearAccelerationSensor.current.enabled)
+        // Check if device has accelerometer
+        if (Accelerometer.current == null)
         {
-            InputSystem.EnableDevice(LinearAccelerationSensor.current);
+            Debug.LogWarning("No accelerometer found on device!");
+            return;
         }
 
-        lastAcceleration = Input.acceleration;
+        // Enable the accelerometer
+        InputSystem.EnableDevice(Accelerometer.current);
+
+        lastAcceleration = Accelerometer.current.acceleration.ReadValue();
         ResetAccelerometer();
         SetBombLive();
     }
 
+    public void OnDisable()
+    {
+        // Clean up when the component is disabled
+        if (Accelerometer.current != null)
+        {
+            InputSystem.DisableDevice(Accelerometer.current);
+        }
+    }
+
     public void Update()
     {
-        if (IsBombLive)
+        if (IsBombLive && Accelerometer.current != null)
         {
             DetectShake();
         }
@@ -46,36 +57,35 @@ public class BombMechanic : MonoBehaviour
 
     private void ResetAccelerometer()
     {
-        lastAcceleration = Input.acceleration;
+        if (Accelerometer.current != null)
+        {
+            lastAcceleration = Accelerometer.current.acceleration.ReadValue();
+        }
         lastExplosionTime = Time.time;
     }
 
     private void DetectShake()
     {
-        // aceleracion actual
-        Vector3 currentAcceleration = Input.acceleration;
+        // Get current acceleration
+        Vector3 currentAcceleration = Accelerometer.current.acceleration.ReadValue();
 
-        // diferencia de aceleracion
+        // Calculate acceleration delta
         Vector3 deltaAcceleration = currentAcceleration - lastAcceleration;
 
-        // comprobacion
+        // Check if shake exceeds threshold
         if (deltaAcceleration.sqrMagnitude > shakeThreshold * shakeThreshold &&
             Time.time - lastExplosionTime > explosionCooldown)
         {
             Explode();
-            lastExplosionTime = Time.time; // reinicia el cooldown esto luego se puede borrar
+            lastExplosionTime = Time.time;
         }
 
-        Debug.Log($"acelerometro: {deltaAcceleration}");
-
-
-        // actualiza el valor
+        // Update last acceleration
         lastAcceleration = currentAcceleration;
     }
 
     public void Explode()
     {
-        Debug.Log("bomba");
         IsBombLive = false;
         GameManager.Instance.HandleExplosion();
     }
