@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   winnerNameText: {fileID: 1617309939}
-  playerFaceImage: {fileID: 717261705}
+  playerFaceImage: {fileID: 1026882516}
   backgroundImage: {fileID: 568455028}
 --- !u!1 &568455026
 GameObject:

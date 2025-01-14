@@ -470,6 +470,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   background: {fileID: 430704478}
+  playerImage: {fileID: 2126760818}
   currentPlayerText: {fileID: 652206249}
   timerText: {fileID: 1969783007}
   gameButton: {fileID: 873168270}

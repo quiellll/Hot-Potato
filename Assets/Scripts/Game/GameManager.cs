@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
-using System.Text;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +10,7 @@ public class GameManager : MonoBehaviour
 
     [Header("UI References")]
     public Image background;
+    public Image playerImage;
     public TextMeshProUGUI currentPlayerText;
     public TextMeshProUGUI timerText;
     public Button gameButton;
@@ -181,7 +181,11 @@ public class GameManager : MonoBehaviour
 
     public void SetupFirstPlayer()
     {
-        currentPlayerText.text = players[0].Name;
+        var player = players[0];
+
+        currentPlayerText.text = player.Name;
+        playerImage.sprite = Sprite.Create(player.PlayerFace, new Rect(0.0f, 0.0f, player.PlayerFace.width, player.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
+        background.sprite = player.Background;
     }
 
     private void StartPlaying()
@@ -245,8 +249,10 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        currentPlayerText.text = GetNextPlayer().Name;
-        background.sprite = GetNextPlayer().Background;
+        var next = GetNextPlayer();
+        currentPlayerText.text = next.Name;
+        background.sprite = next.Background;
+        playerImage.sprite = Sprite.Create(next.PlayerFace, new Rect(0.0f, 0.0f, next.PlayerFace.width, next.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
     }
 
     private void ShowEliminationText()
