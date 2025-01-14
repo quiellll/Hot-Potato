@@ -16,6 +16,10 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI timerText;
     public Button gameButton;
     public TextMeshProUGUI eliminationText;
+   
+    [Range(0f, 1f)]
+    public float backgroundMusicVolume = 0.5f;
+    public bool playMusicOnStart = true;
 
     [Header("Game Settings")]
     public float roundDuration = 15f;
@@ -66,6 +70,8 @@ public class GameManager : MonoBehaviour
         bombMechanic = FindFirstObjectByType<BombMechanic>();
         touchManager = FindFirstObjectByType<TouchManager>();
 
+        
+
         // Load players from configuration instead of debug players
         LoadPlayersFromConfig();
         StartNewRound();
@@ -79,6 +85,7 @@ public class GameManager : MonoBehaviour
         gameButton.onClick.AddListener(StartPlaying);
         gameButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start";
     }
+    
 
     //private void CreateDebugPlayers()
     //{
@@ -210,6 +217,7 @@ public class GameManager : MonoBehaviour
     public void HandleExplosion()
     {
         // aqui hacer las cosas de explosion, como poner un ruidito o indicar q ha perdido.
+        AudioManager.Instance.PlayExplosionSound();
         EliminateCurrentPlayer();
         currentState = GameState.GameOver;
         StartNewRound();
