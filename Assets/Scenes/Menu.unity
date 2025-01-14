@@ -1350,7 +1350,7 @@ MonoBehaviour:
   backgroundMusic: {fileID: 8300000, guid: baa04add7786969428f07089bca30288, type: 3}
   explosionSound: {fileID: 8300000, guid: bc5c913700c1cbc4aa80ee0403b29042, type: 3}
   buttonClickSound: {fileID: 8300000, guid: a866f6af3aff23e4795dc9bcb05c4aee, type: 3}
-  musicVolume: 0.5
+  musicVolume: 0.2
   sfxVolume: 0.7
 --- !u!4 &1499256622
 Transform:
