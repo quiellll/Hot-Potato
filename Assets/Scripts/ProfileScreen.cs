@@ -173,7 +173,8 @@ public class ProfileScreen : MonoBehaviour
         var playersScreen = FindAnyObjectByType<PlayersScreen>();
         if (playersScreen != null)
         {
-            playersScreen.UpdatePlaceholders();
+            playersScreen.UpdateNamesVisibility();
+
         }
 
         ClearProfileForm();

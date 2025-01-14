@@ -15,17 +15,21 @@ public class PlayersScreen : MonoBehaviour
 
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private GameObject playerNameCardLayoutParent;
+    [SerializeField] private GameObject playerNameCard;
+
     private void OnEnable()
     {
-        UpdatePlaceholders();
         UpdateStartButtonVisibility();
+        //UpdateNamesVisibility();
     }
 
     void Start()
     {
-        UpdatePlaceholders();
         UpdateStartButtonVisibility();
+        UpdateNamesVisibility();
     }
+
     private void UpdateStartButtonVisibility()
     {
         if (StartButton != null)
@@ -35,64 +39,33 @@ public class PlayersScreen : MonoBehaviour
             // Keep button visible but change interactability
             StartButton.interactable = hasEnoughPlayers;
 
-            // Update message text
-            if (messageText != null)
-            {
-                if (!hasEnoughPlayers)
-                {
-                    messageText.text = $"Need at least {minimumPlayers} players to start";
-                    messageText.gameObject.SetActive(true);
-                }
-                else
-                {
-                    messageText.text = "";
-                    messageText.gameObject.SetActive(false);
-                }
-            }
+            //// Update message text
+            //if (messageText != null)
+            //{
+            //    if (!hasEnoughPlayers)
+            //    {
+            //        messageText.text = $"Need at least {minimumPlayers} players to start";
+            //        messageText.gameObject.SetActive(true);
+            //    }
+            //    else
+            //    {
+            //        messageText.text = "";
+            //        messageText.gameObject.SetActive(false);
+            //    }
+            //}
         }
     }
-    public void UpdatePlaceholders()
+
+    public void UpdateNamesVisibility()
     {
-
-        for (int i = 0; i < playerImage.Count; i++)
+        foreach (var player in config.players)
         {
-
-            if (playerImage[i] == null) continue;
-
-            var imageComponent = playerImage[i];
-            var imageParent = imageComponent.transform.parent.gameObject;
-
-            if (i < config.players.Count && config.players[i] != null)
-            {
-                var player = config.players[i];
-
-                if (player.PlayerFace != null)
-                {
-                    imageComponent.sprite = player.PlayerFace;
-
-                    imageComponent.enabled = true;
-                    Color color = imageComponent.color;
-                    color.a = 1f;
-                    imageComponent.color = color;
-                }
-
-                if (player.PlayerFace != null)
-                {
-                    imageComponent.sprite = player.PlayerFace;
-                }
-            }
-            else
-            {
-                imageComponent.sprite = null;
-
-                if (imageParent != null)
-                {
-                    imageParent.SetActive(true);
-                }
-            }
+            var newCard = Instantiate(playerNameCard);
+            newCard.GetComponentInChildren<TextMeshProUGUI>().text = player.Name;
+            newCard.transform.SetParent(playerNameCardLayoutParent.transform, false);
         }
-        UpdateStartButtonVisibility();
     }
+    
     public void RefreshStartButton()
     {
         UpdateStartButtonVisibility();
