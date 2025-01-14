@@ -7,23 +7,47 @@ public class PlayersScreen : MonoBehaviour
     [SerializeField] private List<Image> playerImage;
     [SerializeField] private GameConfiguration config;
 
+    private void OnEnable()
+    {
+        UpdatePlaceholders();
+    }
+
     public void UpdatePlaceholders()
     {
         for (int i = 0; i < playerImage.Count; i++)
         {
-            var placeholder = playerImage[i];
+            if (playerImage[i] == null) continue;
 
-            if (i < config.players.Count)
+            var imageComponent = playerImage[i];
+            var imageParent = imageComponent.transform.parent.gameObject;
+
+            if (i < config.players.Count && config.players[i] != null)
             {
                 var player = config.players[i];
-                placeholder.sprite = Sprite.Create(player.PlayerFace, new Rect(0.0f, 0.0f, player.PlayerFace.width, player.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
-                placeholder.GetComponentInParent<GameObject>().SetActive(true);
+
+                if (player.PlayerFace != null)
+                {
+                    imageComponent.sprite = Sprite.Create(
+                        player.PlayerFace,
+                        new Rect(0, 0, player.PlayerFace.width, player.PlayerFace.height),
+                        new Vector2(0.5f, 0.5f),
+                        100.0f
+                    );
+
+                    imageComponent.enabled = true;
+                    Color color = imageComponent.color;
+                    color.a = 1f;
+                    imageComponent.color = color;
+                }
             }
             else
             {
-                // Reset placeholder
-                placeholder= null;
-                placeholder.GetComponentInParent<GameObject>().SetActive(false);
+                imageComponent.sprite = null;
+
+                if (imageParent != null)
+                {
+                    imageParent.SetActive(true);
+                }
             }
         }
     }

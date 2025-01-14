@@ -120,7 +120,7 @@ public class ProfileScreen : MonoBehaviour
         config.players.Add(newPlayer);
 
         // Update display
-        var playersScreen = FindObjectOfType<PlayersScreen>();
+        var playersScreen = FindAnyObjectByType<PlayersScreen>();
         if (playersScreen != null)
         {
             playersScreen.UpdatePlaceholders();
