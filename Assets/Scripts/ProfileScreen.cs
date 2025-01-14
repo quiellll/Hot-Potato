@@ -30,6 +30,9 @@ public class ProfileScreen : MonoBehaviour
     [SerializeField] private Image playerBackground;
     [SerializeField] private RawImage playerFace;
 
+    private Texture2D capturedTexture;
+
+
     private void Awake()
     {
         foreach (var button in colorButtons)
@@ -59,6 +62,7 @@ public class ProfileScreen : MonoBehaviour
         {
             // la idea es pillar camara selfie pero si no la detecta que use la default
             cameraTexture = new WebCamTexture(WebCamTexture.devices.FirstOrDefault(d => d.isFrontFacing).name ?? "");
+            placeholderImage.texture = cameraTexture;
         }
 
         if (cameraTexture.isPlaying)
@@ -90,18 +94,40 @@ public class ProfileScreen : MonoBehaviour
         }
     }
 
+    private Texture2D ConvertWebCamTextureToTexture2D(WebCamTexture webcamTexture)
+    {
+        if (webcamTexture == null || !webcamTexture.isPlaying)
+        {
+            Debug.LogError("WebCamTexture is not available!");
+            return null;
+        }
+
+        Texture2D texture2D = new Texture2D(webcamTexture.width, webcamTexture.height, TextureFormat.RGB24, false);
+        texture2D.SetPixels(webcamTexture.GetPixels());
+        texture2D.Apply();
+
+        return texture2D;
+    }
+
+    private Sprite CreateSpriteFromWebCam(WebCamTexture webcamTexture)
+    {
+        Texture2D texture2D = capturedTexture;
+        if (texture2D == null) return null;
+
+        return Sprite.Create(texture2D, new Rect(0, 0, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f), 100f);
+    }
+
     public void CapturePhoto()
     {
         if (cameraTexture != null && cameraTexture.isPlaying)
         {
-            Texture2D photo = new Texture2D(cameraTexture.width, cameraTexture.height, TextureFormat.RGB24, false);
-
-            photo.SetPixels(cameraTexture.GetPixels());
-            photo.Apply();
-
-            placeholderImage.texture = photo;
-
+            capturedTexture = ConvertWebCamTextureToTexture2D(cameraTexture);
             cameraTexture.Stop();
+
+            if (capturedTexture != null)
+            {
+                placeholderImage.texture = capturedTexture; // assign it to the UI texture
+            }
         }
     }
 
@@ -124,9 +150,14 @@ public class ProfileScreen : MonoBehaviour
         // por si se olvida a quien sea pillar la foto
         if (cameraTexture.isPlaying) CapturePhoto();
 
-        // mando al gamemanager la resolucion de la foto para q las cargue bien
+        Sprite photoTexture = CreateSpriteFromWebCam(cameraTexture);
 
-        Texture2D photoTexture = placeholderImage.texture as Texture2D;
+        Sprite profileSprite = Sprite.Create(
+        capturedTexture,
+        new Rect(0, 0, capturedTexture.width, capturedTexture.height),
+        new Vector2(0.5f, 0.5f),
+        100.0f
+        );
 
         var newPlayer = new PlayerData(
             nameInput.text,

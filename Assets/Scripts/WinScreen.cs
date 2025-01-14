@@ -20,10 +20,27 @@ public class WinScreen : MonoBehaviour
                 // Set up the UI elements
                 winnerNameText.text = $"{winner.Name}";
                 if (winner.PlayerFace != null)
-                    playerFaceImage.sprite = Sprite.Create(winner.PlayerFace, new Rect(0.0f, 0.0f, winner.PlayerFace.width, winner.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f); ;
+                    playerFaceImage.sprite = winner.PlayerFace; ;
                 if (winner.Background != null)
                     backgroundImage.sprite = winner.Background;
             }
         }
     }
+
+    public void UpdateWinScreen()
+    {
+        if (GameManager.Instance != null)
+        {
+            Player winner = GameManager.Instance.GetWinner();
+            if (winner != null)
+            {
+                winnerNameText.text = $"{winner.Name}";
+                if (winner.PlayerFace != null)
+                    playerFaceImage.sprite = winner.PlayerFace;
+                if (winner.Background != null)
+                    backgroundImage.sprite = winner.Background;
+            }
+        }
+    }
+
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -187,7 +188,7 @@ public class GameManager : MonoBehaviour
         var player = players[0];
 
         currentPlayerText.text = player.Name;
-        playerImage.sprite = Sprite.Create(player.PlayerFace, new Rect(0.0f, 0.0f, player.PlayerFace.width, player.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
+        playerImage.sprite = player.PlayerFace;
         background.sprite = player.Background;
     }
 
@@ -260,7 +261,7 @@ public class GameManager : MonoBehaviour
 
     private void LoadPlayerPic(Player p)
     {
-        playerImage.sprite = Sprite.Create(p.PlayerFace, new Rect(0.0f, 0.0f, p.PlayerFace.width, p.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
+        playerImage.sprite = p.PlayerFace;
     }
 
     public void SetupImageResolution(Vector2 res)
@@ -290,6 +291,14 @@ public class GameManager : MonoBehaviour
         if (players.Count > 0)
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene("Winner");
+            SceneManager.sceneLoaded += (scene, mode) =>
+            {
+                if (scene.name == "Winner")
+                {
+                    var winScreen = FindAnyObjectByType<WinScreen>();
+                    winScreen?.UpdateWinScreen();
+                }
+            };
         }
     }
 }
