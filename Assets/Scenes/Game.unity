@@ -272,6 +272,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 873168270}
     - target: {fileID: 6868268974551258120, guid: e96fca97ae0c24242b4b0d3782be96bb, type: 3}
+      propertyPath: minPlayers
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6868268974551258120, guid: e96fca97ae0c24242b4b0d3782be96bb, type: 3}
       propertyPath: playerImage
       value: 
       objectReference: {fileID: 2126760818}

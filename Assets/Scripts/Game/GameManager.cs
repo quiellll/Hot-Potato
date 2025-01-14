@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Settings")]
     public float roundDuration = 15f;
-    public int minPlayers = 3;
+    public int minPlayers = 2;
     public int maxPlayers = 5;
 
     [Header("Game Components")]
@@ -227,11 +227,6 @@ public class GameManager : MonoBehaviour
         players.Remove(player);
 
         eliminatedPlayer = player.Name;
-
-        if (players.Count < 2)
-        {
-            // aqui se puede pasar a la pantalla de victoria con el ganador
-        }
     }
 
     private void UpdateUI()
@@ -290,6 +285,7 @@ public class GameManager : MonoBehaviour
     {
         if (players.Count > 0)
         {
+            currentState = GameState.GameOver;
             UnityEngine.SceneManagement.SceneManager.LoadScene("Winner");
             SceneManager.sceneLoaded += (scene, mode) =>
             {

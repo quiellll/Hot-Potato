@@ -19,7 +19,7 @@ public class BombMechanic : MonoBehaviour
 
     public void Update()
     {
-        if (GameManager.Instance.GetCurrentState() == GameState.Playing)
+        if (IsBombLive)
         {
             DetectShake();
         }
@@ -45,6 +45,9 @@ public class BombMechanic : MonoBehaviour
             Explode();
             lastExplosionTime = Time.time; // reinicia el cooldown esto luego se puede borrar
         }
+
+        Debug.Log($"acelerometro: {deltaAcceleration}");
+
 
         // actualiza el valor
         lastAcceleration = currentAcceleration;
