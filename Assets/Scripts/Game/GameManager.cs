@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI timerText;
     public Button gameButton;
     public TextMeshProUGUI eliminationText;
+    public AudioSource audioSource; 
+    public AudioClip explosionSound; 
 
     [Header("Game Settings")]
     public float roundDuration = 15f;
@@ -206,6 +208,10 @@ public class GameManager : MonoBehaviour
     public void HandleExplosion()
     {
         // aqui hacer las cosas de explosion, como poner un ruidito o indicar q ha perdido.
+        if (audioSource != null && explosionSound != null)
+        {
+            audioSource.PlayOneShot(explosionSound);
+        }
         EliminateCurrentPlayer();
         currentState = GameState.GameOver;
         StartNewRound();
