@@ -475,8 +475,8 @@ MonoBehaviour:
   timerText: {fileID: 1969783007}
   gameButton: {fileID: 873168270}
   eliminationText: {fileID: 652917877}
-  audioSource: {fileID: 1803061480}
-  explosionSound: {fileID: 8300000, guid: bc5c913700c1cbc4aa80ee0403b29042, type: 3}
+  backgroundMusicVolume: 0.5
+  playMusicOnStart: 1
   roundDuration: 15
   minPlayers: 3
   maxPlayers: 5

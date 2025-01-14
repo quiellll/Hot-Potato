@@ -12,4 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fc567f3dea009d48b64b405d0f7939e, type: 3}
   m_Name: PlayerList
   m_EditorClassIdentifier: 
-  players: []
+  players:
+  - Name: sad
+    Background: {fileID: -4279241780906724887, guid: 2e3a198160901ff4889dc293926ac962, type: 3}
+    PlayerFace: {fileID: 0}
+  - Name: dwad
+    Background: {fileID: 6977937172876042345, guid: 03c5718cd9cf425489a45b2cd0725f2f, type: 3}
+    PlayerFace: {fileID: 0}
+  - Name: dwad
+    Background: {fileID: 8320025121885212575, guid: 042168a55b60d664dac2ea2991e5b93d, type: 3}
+    PlayerFace: {fileID: 0}
