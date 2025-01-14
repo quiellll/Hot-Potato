@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BombMechanic : MonoBehaviour
 {
@@ -13,6 +14,12 @@ public class BombMechanic : MonoBehaviour
 
     public void Start()
     {
+        // activar el sensor
+        if (!LinearAccelerationSensor.current.enabled)
+        {
+            InputSystem.EnableDevice(LinearAccelerationSensor.current);
+        }
+
         lastAcceleration = Input.acceleration;
         ResetAccelerometer();
         SetBombLive();

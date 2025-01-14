@@ -42,5 +42,10 @@ public class RequestPermissionScript : MonoBehaviour
                 Permission.RequestUserPermission(Permission.Camera, callbacks);
             }
         }
+
+        if (!Permission.HasUserAuthorizedPermission("android.permission.ACTIVITY_RECOGNITION"))
+        {
+            Permission.RequestUserPermission("android.permission.ACTIVITY_RECOGNITION");
+        }
     }
 }
