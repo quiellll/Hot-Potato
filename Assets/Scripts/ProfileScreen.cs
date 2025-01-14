@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using System.Collections;
+using System.Linq;
 
 public enum PlayerColor
 {
@@ -41,19 +43,13 @@ public class ProfileScreen : MonoBehaviour
         TouchScreenKeyboard.Open(inputField.text, TouchScreenKeyboardType.Default);
     }
 
-    public void CloseKeyboardForInput(InputField inputField)
-    {
-        //
-    }
-
     public void SelectColor(Button clickedButton)
     {
-        // access only the first child image of the button
         var childImage = clickedButton.transform.GetChild(0).GetComponent<Image>();
 
         if (childImage != null && background != null)
         {
-            background.sprite = childImage.sprite; // change background sprite
+            background.sprite = childImage.sprite; 
         }
     }
 
@@ -61,7 +57,8 @@ public class ProfileScreen : MonoBehaviour
     {
         if (cameraTexture == null)
         {
-            cameraTexture = new WebCamTexture();
+            // la idea es pillar camara selfie pero si no la detecta que use la default
+            cameraTexture = new WebCamTexture(WebCamTexture.devices.FirstOrDefault(d => d.isFrontFacing).name ?? "");
         }
 
         if (cameraTexture.isPlaying)
@@ -72,23 +69,38 @@ public class ProfileScreen : MonoBehaviour
         placeholderImage.texture = cameraTexture;
         placeholderImage.gameObject.SetActive(true);
         cameraTexture.Play();
+
+        StartCoroutine(ResizeImageAfterCameraInit());
+    }
+
+    private IEnumerator ResizeImageAfterCameraInit()
+    {
+        yield return new WaitForEndOfFrame();
+
+        // pillar la resolucion de la foto
+        RectTransform rectTransform = placeholderImage.GetComponent<RectTransform>();
+
+        // cambio la resolucion de la foto a la de la camara pero a la mitad
+        rectTransform.sizeDelta = new Vector2(cameraTexture.width/2, cameraTexture.height/2);
+
+        // si la camara es mas alta que ancha (movil), pues que se vea girada
+        if (cameraTexture.width < cameraTexture.height)
+        {
+            rectTransform.rotation = Quaternion.Euler(0, 0, -90);
+        }
     }
 
     public void CapturePhoto()
     {
         if (cameraTexture != null && cameraTexture.isPlaying)
         {
-            // Create a new texture with the webcam dimensions
             Texture2D photo = new Texture2D(cameraTexture.width, cameraTexture.height, TextureFormat.RGB24, false);
 
-            // Read the current camera frame
             photo.SetPixels(cameraTexture.GetPixels());
             photo.Apply();
 
-            // Set the captured photo as the texture of the placeholder
             placeholderImage.texture = photo;
 
-            // Stop the camera - THIS WAS MISSING
             cameraTexture.Stop();
         }
     }
@@ -109,14 +121,21 @@ public class ProfileScreen : MonoBehaviour
     {
         if (string.IsNullOrEmpty(nameInput.text)) return;
 
+        // por si se olvida a quien sea pillar la foto
+        if (cameraTexture.isPlaying) CapturePhoto();
+
+        // mando al gamemanager la resolucion de la foto para q las cargue bien
+
         Texture2D photoTexture = placeholderImage.texture as Texture2D;
 
         var newPlayer = new PlayerData(
             nameInput.text,
             background.sprite,
-            photoTexture  
+            photoTexture
         );
 
+        newPlayer.SetImageResolution(new Vector2(cameraTexture.width/2, cameraTexture.height/2));
+        
         config.players.Add(newPlayer);
 
         // Update display

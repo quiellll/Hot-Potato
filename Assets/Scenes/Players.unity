@@ -695,10 +695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc41cc5c00b3739499eeaf70680f7f37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPlaceholders:
-  - {fileID: 1195368287371544378, guid: b3365f5e0ef69c048bf209cae520dab9, type: 3}
-  playerBackgrounds:
-  - {fileID: 6757591595277160652, guid: e36cd9c564448e741bab56e8c4abce38, type: 3}
+  playerImage: []
   config: {fileID: 11400000, guid: ab77af056e99944459e574c1d013bb2d, type: 2}
 --- !u!1 &642224967
 GameObject:

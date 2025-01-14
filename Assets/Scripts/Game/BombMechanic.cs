@@ -52,6 +52,7 @@ public class BombMechanic : MonoBehaviour
 
     public void Explode()
     {
+        Debug.Log("bomba");
         IsBombLive = false;
         GameManager.Instance.HandleExplosion();
     }

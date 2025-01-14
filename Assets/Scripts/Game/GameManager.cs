@@ -28,6 +28,8 @@ public class GameManager : MonoBehaviour
     [Header("Configuration")]
     [SerializeField] private GameConfiguration config;
 
+    private Vector2 imageTextureResolution;
+
     // Game state tracking
     private GameState currentState;
     private float remainingTime;
@@ -107,6 +109,7 @@ public class GameManager : MonoBehaviour
             var player = gameObject.AddComponent<Player>();
             player.Initialize(playerData.Name, playerData.Background, playerData.PlayerFace);
             players.Add(player);
+            SetupImageResolution(playerData.GetImageResolution());
         }
 
         ShufflePlayers();
@@ -252,7 +255,23 @@ public class GameManager : MonoBehaviour
         var next = GetNextPlayer();
         currentPlayerText.text = next.Name;
         background.sprite = next.Background;
-        playerImage.sprite = Sprite.Create(next.PlayerFace, new Rect(0.0f, 0.0f, next.PlayerFace.width, next.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
+        LoadPlayerPic(next);
+    }
+
+    private void LoadPlayerPic(Player p)
+    {
+        playerImage.sprite = Sprite.Create(p.PlayerFace, new Rect(0.0f, 0.0f, p.PlayerFace.width, p.PlayerFace.height), new Vector2(0.5f, 0.5f), 100.0f);
+    }
+
+    public void SetupImageResolution(Vector2 res)
+    {
+        imageTextureResolution = res;
+
+        // pillar la resolucion de la foto
+        RectTransform rectTransform = playerImage.GetComponent<RectTransform>();
+
+        // cambio la resolucion de la foto a la de la camara pero a la mitad
+        rectTransform.sizeDelta = res;
     }
 
     private void ShowEliminationText()
