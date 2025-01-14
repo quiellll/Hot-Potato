@@ -8,29 +8,63 @@ public class SettingsController : MonoBehaviour
     public Button[] soundBars; // Botones de las barras de sonido
     public Button restoreButton; // Botón para restaurar
 
+    private const int MAX_BARS = 5;
     private int defaultVolume = 3; // Valor por defecto (3 barras activas)
 
     void Start()
     {
         // Inicializa los valores por defecto
-        SetVolume(musicBars, defaultVolume);
-        SetVolume(soundBars, defaultVolume);
+        // Initialize bars based on current AudioManager volumes
+        InitializeVolumeDisplay();
 
-        // Añade listeners a las barras y al botón de restaurar
+        // Add listeners to the bars and restore button
         foreach (var bar in musicBars)
-            bar.onClick.AddListener(() => UpdateBars(musicBars, bar));
+            bar.onClick.AddListener(() => UpdateBars(musicBars, bar, true));
 
         foreach (var bar in soundBars)
-            bar.onClick.AddListener(() => UpdateBars(soundBars, bar));
+            bar.onClick.AddListener(() => UpdateBars(soundBars, bar, false));
 
         restoreButton.onClick.AddListener(RestoreDefaults);
     }
+    private void InitializeVolumeDisplay()
+    {
+        if (AudioManager.Instance != null)
+        {
+            // Convert the 0-1 volume range to bar count (0-5)
+            int musicBarCount = Mathf.RoundToInt(AudioManager.Instance.GetMusicVolume() * MAX_BARS);
+            int sfxBarCount = Mathf.RoundToInt(AudioManager.Instance.GetSFXVolume() * MAX_BARS);
+
+            SetVolume(musicBars, musicBarCount);
+            SetVolume(soundBars, sfxBarCount);
+        }
+        else
+        {
+            Debug.LogWarning("AudioManager instance not found!");
+            SetVolume(musicBars, defaultVolume);
+            SetVolume(soundBars, defaultVolume);
+        }
+    }
 
     // Actualiza las barras de volumen según el botón seleccionado
-    void UpdateBars(Button[] bars, Button selectedBar)
+    void UpdateBars(Button[] bars, Button selectedBar, bool isMusic)
     {
         int index = System.Array.IndexOf(bars, selectedBar);
-        SetVolume(bars, index + 1); // Activa las barras hasta la seleccionada
+        int activeCount = index + 1;
+
+        // Update visual display
+        SetVolume(bars, activeCount);
+
+        // Update actual volume in AudioManager
+        if (AudioManager.Instance != null)
+        {
+            // Convert bar count to volume (0-1 range)
+            float volume = (float)activeCount / MAX_BARS;
+
+            if (isMusic)
+                AudioManager.Instance.SetMusicVolume(volume);
+            else
+                AudioManager.Instance.SetSFXVolume(volume);
+        }
     }
 
     // Activa/desactiva las barras según el nivel de volumen
@@ -48,5 +82,16 @@ public class SettingsController : MonoBehaviour
     {
         SetVolume(musicBars, defaultVolume);
         SetVolume(soundBars, defaultVolume);
+
+        if (AudioManager.Instance != null)
+        {
+            float defaultVolumeNormalized = (float)defaultVolume / MAX_BARS;
+            AudioManager.Instance.SetMusicVolume(defaultVolumeNormalized);
+            AudioManager.Instance.SetSFXVolume(defaultVolumeNormalized);
+        }
+    }
+    private void OnEnable()
+    {
+        InitializeVolumeDisplay();
     }
 }
